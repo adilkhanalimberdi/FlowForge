@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+.disab {
+    opacity: 0.5;
+
+    &:hover {
+        background-color: rgb(43, 127, 255);
+        cursor: auto;
+    }
+}
+
+.NOT_STARTED {
+    background-color: #008cff;
+    color: white;
+}
+
+.IN_PROGRESS {
+    background-color: #ff9900;
+    color: white;
+}
+
+.COMPLETED {
+    background-color: #66ff00;
+    color: white;
+}
