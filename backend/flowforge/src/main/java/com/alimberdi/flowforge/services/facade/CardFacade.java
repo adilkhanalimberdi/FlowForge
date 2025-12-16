@@ -46,6 +46,7 @@ public class CardFacade {
 
 		Card card = CardBuilder.builder()
 				.title("Untitled")
+				.description("Type a description...")
 				.status(CardStatus.NOT_STARTED)
 				.workspace(workspace)
 				.tasks(new ArrayList<>())

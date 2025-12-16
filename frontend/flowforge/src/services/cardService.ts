@@ -13,6 +13,11 @@ export const cardService = {
         return response.data;
     },
 
+    createDefault: async (workspaceId: number) => {
+        const response = await api.post<Card | null>(`/api/cards/createDefault/${workspaceId}`);
+        return response.data;
+    },
+
     start: async (id: number) => {
         const response = await api.post<Card[]>(`/api/cards/start/${id}`);
         return response.data;

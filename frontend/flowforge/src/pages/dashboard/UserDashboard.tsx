@@ -36,7 +36,7 @@ function UserDashboardPage() {
 
     return (
         <div className="p-5 pl-30 pr-30">
-            <button onClick={logout} className="hover:cursor-pointer">Logout</button>
+            <button onClick={logout} className="hover:cursor-pointer bg-red-600 hover:bg-red-700 rounded-[5px] text-white p-2">Logout</button>
 
             <div className="w-full pt-10">
 

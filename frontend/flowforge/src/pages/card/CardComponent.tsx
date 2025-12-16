@@ -40,53 +40,33 @@ function CardComponent({before, after, setCanSave, saving, setSaving, setAfter, 
     };
 
     const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const element = event.target as HTMLInputElement;
-        const elementId = Number.parseInt(element.id);
-        // console.log(element.checked);
+        const elementId = Number(event.target.id);
+        const checked = event.target.checked;
 
         if (before.status === "NOT_STARTED") {
-            element.checked = !element.checked;
-            alert("You need to start card first.")
+            alert("You need to start card first.");
+            return;
+        }
+        if (before.status === "COMPLETED") {
+            alert("The card is completed.");
             return;
         }
 
-        for (let i = 0; i < after.tasks.length; i++) {
-            if (after.tasks[i].id === elementId) {
-                console.log("Task Clicked!");
-                after.tasks[i].completed = element.checked;
-                setAfter(after);
-            }
+        setAfter(prev => ({
+            ...prev,
+            tasks: prev.tasks.map(task => ({
+                ...task,
+                completed: task.id === elementId ? checked : task.completed,
+                subTasks: task.subTasks.map(sub => ({
+                    ...sub,
+                    completed: sub.id === elementId ? checked : sub.completed
+                }))
+            }))
+        }));
 
-            for (let j = 0; j < after.tasks[i].subTasks.length; j++) {
-                if (after.tasks[i].subTasks[j].id === elementId) {
-                    console.log("Subtasks Clicked!");
-                    after.tasks[i].subTasks[j].completed = element.checked;
-                    setAfter(after);
-                }
-            }
-        }
-
-        // console.log(before.tasks);
-        // console.log(after.tasks)
-
-        after.tasks.map((task) => {
-            if (task.id === elementId) {
-                if (element.parentElement === null || element.parentElement.parentElement === null) return;
-                const subtaskElements = element.parentElement?.parentElement.children[1].querySelectorAll(`div[class="subtask-body"]`);
-                subtaskElements?.forEach((subtaskElement) => {
-                    (subtaskElement.querySelector("input") as HTMLInputElement).checked = element.checked;
-                });
-                task.subTasks.forEach((subtask) => {
-                    subtask.completed = element.checked;
-                });
-                setAfter(after);
-            }
-        });
-
-        const isEqual = JSON.stringify(after) === JSON.stringify(before);
-        setAfter(after);
-        setCanSave(!isEqual);
+        setCanSave(true);
     };
+
 
     const toggleTask = (id: number) => {
         taskService.toggle(id)
@@ -103,23 +83,20 @@ function CardComponent({before, after, setCanSave, saving, setSaving, setAfter, 
         event.preventDefault();
         setSaving(true);
 
-        let allTasksCompleted = true;
-        after.tasks.map((task) => {
-            allTasksCompleted = task.completed;
-
-            task.subTasks.forEach((subtask) => {
-                allTasksCompleted = subtask.completed;
-            });
-        });
+        const allTasksCompleted = after.tasks.every(task =>
+            task.completed && task.subTasks.every(sub => sub.completed)
+        );
 
         if (!allTasksCompleted) {
             alert("All tasks must be completed.");
+            setSaving(false);
             return;
         }
-
         await cardService.complete(after.id);
         window.location.reload();
-    }
+    };
+
+
 
     const handleReopenClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();

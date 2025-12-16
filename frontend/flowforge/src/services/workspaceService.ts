@@ -20,5 +20,10 @@ export const workspaceService = {
     createDefault: async (userId: number): Promise<Workspace | null> => {
         const response = await api.post<Workspace | null>(`/api/workspaces/createDefault/${userId}`);
         return response.data;
+    },
+
+    delete: async (id: number) => {
+        const response = await api.delete<Workspace | null>(`/api/workspaces/${id}`);
+        return response.data;
     }
 }

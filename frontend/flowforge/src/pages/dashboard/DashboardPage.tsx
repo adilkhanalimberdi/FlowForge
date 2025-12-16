@@ -5,10 +5,11 @@ import {workspaceService} from "../../services/workspaceService.ts";
 import type {Card} from "../../types/card/Card.ts";
 import {useNavigate, useParams} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faLeftLong} from "@fortawesome/free-solid-svg-icons";
+import {faLeftLong, faTrashCan} from "@fortawesome/free-solid-svg-icons";
 import {toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Calendar from "../../components/Calendar.tsx";
+import {cardService} from "../../services/cardService.ts";
 
 
 function sortByStatus(cards: Card[]) {
@@ -72,19 +73,66 @@ function DashboardPage() {
         });
     }
 
+    const handleCreateCard = async () => {
+        if (!workspace) return;
+
+        try {
+            const newCard = await cardService.createDefault(workspace.id);
+
+            setWorkspace(prev => {
+                if (!prev) return prev;
+
+                // @ts-ignore
+                const updatedCards: Card[] = [...prev.cards, newCard];
+
+                return {
+                    ...prev,
+                    cards: updatedCards
+                } as Workspace;
+            });
+
+            setCanSave(true);
+
+            toast.success("Card created successfully!", {
+                position: "bottom-right",
+                autoClose: 3000,
+            });
+
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Failed to create card: " + (err.message || err), {
+                position: "bottom-right",
+                autoClose: 3000,
+            });
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!workspace) return;
+        await workspaceService.delete(workspace.id);
+        navigate("/dashboard");
+    }
+
+
     if (!workspace) return null;
 
     return (
         <div className="pl-30 pr-30 pt-5">
             <div className="">
                 <div className="flex justify-between items-center">
-                    <button className="bg-blueviolet-500 hover:bg-blueviolet-600 hover:cursor-pointer active:bg-blueviolet-700 text-white pl-4 pr-4 pt-2 pb-2 rounded-[5px] mb-5"
-                        onClick={() => {
-                            navigate("/dashboard");
-                        }}>
-                        {/*<FontAwesomeIcon icon={faHouse} />*/}
-                        <FontAwesomeIcon icon={faLeftLong} />
-                    </button>
+                    <div className="flex flex-row gap-2">
+                        <button className="bg-blueviolet-500 hover:bg-blueviolet-600 hover:cursor-pointer active:bg-blueviolet-700 text-white pl-4 pr-4 pt-2 pb-2 rounded-[5px] mb-5"
+                                onClick={() => {
+                                    navigate("/dashboard");
+                                }}>
+                            {/*<FontAwesomeIcon icon={faHouse} />*/}
+                            <FontAwesomeIcon icon={faLeftLong} />
+                        </button>
+                        <button className="bg-blueviolet-500 hover:bg-blueviolet-600 hover:cursor-pointer active:bg-blueviolet-700 text-white pl-4 pr-4 pt-2 pb-2 rounded-[5px] mb-5"
+                                onClick={handleDelete}>
+                            <FontAwesomeIcon icon={faTrashCan} />
+                        </button>
+                    </div>
 
                     <form action="" className="items-center">
                         <button id="save-button"
@@ -103,7 +151,7 @@ function DashboardPage() {
                             className="workspace-title border p-3 w-[500px] rounded-[5px] mr-5 border-gray-500"
                             defaultValue={workspace.title}
                         />
-                        <button className="pl-4 pr-4 pt-2 pb-2 rounded-[5px] bg-blueviolet-500 hover:bg-blueviolet-600 active:bg-blueviolet-700 text-white text-md hover:cursor-pointer"
+                        <button className="pl-4 pr-4 pt-2 pb-2 rounded-[5px] bg-blueviolet-500 hover:bg-blueviolet-600 active:bg-blueviolet-700 text-white text-md hover:cursor-pointer mr-4"
                                 onClick={ async () => {
                                     const title = (document.querySelector(".workspace-title") as HTMLInputElement).value;
                                     await workspaceService.update(workspace.id, title)
@@ -124,6 +172,11 @@ function DashboardPage() {
                             {/*<FontAwesomeIcon icon={faFloppyDisk} />*/}
                             Ok
                         </button>
+                        <button
+                            className="pl-4 pr-4 pt-2 pb-2 rounded-[5px] bg-blueviolet-500 hover:bg-blueviolet-600 active:bg-blueviolet-700 text-white text-md hover:cursor-pointer"
+                            onClick={handleCreateCard}>
+                            Create Card
+                        </button>
                     </div>
                 </div>
 
@@ -137,7 +190,7 @@ function DashboardPage() {
 
                     <div className="cards-container flex flex-wrap gap-5 items-center justify-center lg:justify-start">
 
-                        {sortByStatus(workspace.cards).map((card) => (
+                        {[...sortByStatus(workspace.cards)].map((card) => (
                             <WorkspacePage
                                 card={card}
                                 key={card.id}
@@ -148,7 +201,9 @@ function DashboardPage() {
                         ))}
 
                         {sortByStatus(workspace.cards).length === 0 && (
-                            <div>Empty.</div>
+                            <div>
+                                <h1 className="text-gray-600 text-xl p-3">You don't have any card.</h1>
+                            </div>
                         )}
 
                     </div>
