@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class CardFacade {
+public class CardFacade implements DefaultCardCreator {
 
 	private final CardService cardService;
 	private final WorkspaceService workspaceService;
@@ -41,6 +41,7 @@ public class CardFacade {
 		this.cardStateResolver = cardStateResolver;
 	}
 
+	@Override
 	public CardDTO createDefaultCard(Long workspaceId) {
 		Workspace workspace = workspaceService.getWorkspaceEntityById(workspaceId);
 

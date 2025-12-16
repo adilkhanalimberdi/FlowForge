@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Service
-public class TaskFacade {
+public class TaskFacade implements DefaultTaskCreator {
 
 	private final TaskService taskService;
 	private final CardService cardService;
@@ -23,6 +23,7 @@ public class TaskFacade {
 		this.cardService = cardService;
 	}
 
+	@Override
 	public TaskDTO createDefaultTask(Long cardId, Long parentId) {
 		Card card = cardService.getCardEntityById(cardId);
 		Task parent = (parentId != -1) ? taskService.getTaskEntityById(parentId) : null;
