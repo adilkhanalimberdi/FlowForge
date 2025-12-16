@@ -3,6 +3,7 @@ package com.alimberdi.flowforge.web.card;
 import com.alimberdi.flowforge.services.facade.CardFacade;
 import com.alimberdi.flowforge.web.card.dtos.CardCreationDTO;
 import com.alimberdi.flowforge.web.card.dtos.CardDTO;
+import com.alimberdi.flowforge.web.card.dtos.CardUpdateDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class CardController {
 	}
 
 	@PostMapping("/update/{id}")
-	public CardDTO updateCard(@PathVariable("id") Long id, @RequestBody CardCreationDTO dto) {
+	public CardDTO updateCard(@PathVariable("id") Long id, @RequestBody CardUpdateDTO dto) {
 		return cardFacade.updateCard(id, dto);
 	}
 

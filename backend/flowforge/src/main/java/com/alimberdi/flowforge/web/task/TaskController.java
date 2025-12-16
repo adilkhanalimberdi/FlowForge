@@ -33,8 +33,8 @@ public class TaskController {
 	}
 
 	@PostMapping("/createDefault/{cardId}")
-	public TaskDTO createDefaultTask(@PathVariable Long cardId) {
-		return taskFacade.createDefaultTask(cardId);
+	public TaskDTO createDefaultTask(@PathVariable Long cardId, @RequestParam Long parentId) {
+		return taskFacade.createDefaultTask(cardId, parentId);
 	}
 
 	@PostMapping("/update/{id}")

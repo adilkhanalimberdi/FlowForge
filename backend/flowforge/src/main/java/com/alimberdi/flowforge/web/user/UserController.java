@@ -4,6 +4,7 @@ import com.alimberdi.flowforge.web.user.dtos.UserDTO;
 import com.alimberdi.flowforge.web.user.dtos.UserRegistrationDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,10 +26,10 @@ public class UserController {
 		return userService.getUserById(id);
 	}
 
-//	@GetMapping("/{email}")
-//	public UserDTO getUserByEmail(@PathVariable String email) {
-//		return userService.getUserByEmail(email);
-//	}
+	@GetMapping("/me")
+	public UserDTO getCurrentUser(Authentication authentication) {
+		return userService.getCurrentUser(authentication);
+	}
 
 	@PostMapping
 	public UserDTO createUser(@RequestBody UserRegistrationDTO dto) {

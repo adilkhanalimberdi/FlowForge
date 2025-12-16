@@ -1,5 +1,5 @@
-import type {Workspace} from "./Workspace.ts";
-import type {Task} from "./task/Task.ts";
+import type {Workspace} from "../Workspace.ts";
+import type {Task} from "../task/Task.ts";
 
 export interface Card {
     id: number,

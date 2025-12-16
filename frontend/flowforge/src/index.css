@@ -4,7 +4,7 @@
     opacity: 0.5;
 
     &:hover {
-        background-color: rgb(43, 127, 255);
+        background-color: hsl(271, 76%, 53%);
         cursor: auto;
     }
 }
@@ -22,4 +22,21 @@
 .COMPLETED {
     background-color: #66ff00;
     color: white;
+}
+
+/*@theme {*/
+/*    --color-blueviolet: #8A2BE2;*/
+/*}*/
+
+@theme {
+    --color-blueviolet-50:  hsl(271, 60%, 95%);
+    --color-blueviolet-100: hsl(271, 65%, 90%);
+    --color-blueviolet-200: hsl(271, 70%, 80%);
+    --color-blueviolet-300: hsl(271, 75%, 70%);
+    --color-blueviolet-400: hsl(271, 78%, 60%);
+    --color-blueviolet-500: hsl(271, 76%, 53%); /* #8A2BE2 */
+    --color-blueviolet-600: hsl(271, 78%, 45%);
+    --color-blueviolet-700: hsl(271, 80%, 38%);
+    --color-blueviolet-800: hsl(271, 82%, 30%);
+    --color-blueviolet-900: hsl(271, 85%, 22%);
 }

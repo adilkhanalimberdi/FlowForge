@@ -8,13 +8,17 @@ import com.alimberdi.flowforge.web.user.dtos.UserDTO;
 import com.alimberdi.flowforge.web.user.dtos.UserRegistrationDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
 	private UserRepository userRepository;
 
@@ -23,6 +27,17 @@ public class UserService {
 				.orElseThrow(() -> new EntityNotFoundException("User with id: " + id + " not found"));
 
 		return UserMapper.toDTO(user);
+	}
+
+	public UserDTO getCurrentUser(Authentication authentication) {
+		return UserMapper.toDTO(
+				userRepository.findByEmail(authentication.getName())
+						.orElseThrow(() -> new EntityNotFoundException("User with email: " + authentication.getName() + " not found")));
+	}
+
+	public User getUserEntityById(Long id) {
+		return userRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("User with id: " + id + " not found"));
 	}
 
 	public List<UserDTO> getAllUsers() {
@@ -44,7 +59,8 @@ public class UserService {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("User with id: " + id + " not found"));
 
-		user.setUsername(dto.username());
+		user.setFirstName(dto.firstName());
+		user.setLastName(dto.lastName());
 		user.setEmail(dto.email());
 		user.setPassword(dto.password());
 
@@ -56,6 +72,11 @@ public class UserService {
 		return new HttpEntity<>("Successful");
 	}
 
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		return userRepository.findByEmail(email)
+				.orElseThrow(() -> new UsernameNotFoundException("User with email: " + email + " not found"));
+	}
 }
 
 

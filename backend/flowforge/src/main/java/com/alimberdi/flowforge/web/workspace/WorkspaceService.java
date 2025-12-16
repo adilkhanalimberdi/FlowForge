@@ -43,27 +43,15 @@ public class WorkspaceService {
 				.toList();
 	}
 
-	public WorkspaceDTO createWorkspace(WorkspaceCreationDTO dto) {
-		User user = userRepository.findById(dto.userId())
-				.orElseThrow(() -> new EntityNotFoundException("User with id: " + dto.userId() + " not found"));
-
-		Workspace workspace = new Workspace(
-				null,
-				dto.title(),
-				user,
-				new ArrayList<>() // When we create Workspace first time we don't have any Card in it
-		);
-
+	public WorkspaceDTO saveWorkspace(Workspace workspace) {
 		return WorkspaceMapper.toDTO(workspaceRepository.save(workspace));
 	}
 
-	public WorkspaceDTO updateWorkspace(Long id, WorkspaceCreationDTO dto) {
+	public WorkspaceDTO updateWorkspace(Long id, String title) {
 		Workspace workspace = workspaceRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Workspace with id: " + id + " not found"));
 
-		// We don't need to change User and Cards in the Workspace
-		workspace.setTitle(dto.title());
-
+		workspace.setTitle(title);
 		return WorkspaceMapper.toDTO(workspaceRepository.save(workspace));
 	}
 

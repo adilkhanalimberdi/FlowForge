@@ -1,6 +1,7 @@
 package com.alimberdi.flowforge.mappers;
 
 import com.alimberdi.flowforge.domain.entities.User;
+import com.alimberdi.flowforge.domain.enums.UserRole;
 import com.alimberdi.flowforge.web.user.dtos.UserDTO;
 import com.alimberdi.flowforge.web.user.dtos.UserRegistrationDTO;
 import com.alimberdi.flowforge.web.workspace.dtos.WorkspaceDTO;
@@ -18,21 +19,25 @@ public class UserMapper {
 
 		return new UserDTO(
 				user.getId(),
-				user.getUsername(),
+				user.getFirstName(),
+				user.getLastName(),
 				user.getEmail(),
 				user.getProfilePictureUrl(),
-				workspaceDTOs
+				workspaceDTOs,
+				user.getRole()
 		);
 	}
 
 	public static User toEntity(UserRegistrationDTO dto) {
 		return new User(
 				null,
-				dto.username(),
+				dto.firstName(),
+				dto.lastName(),
 				dto.email(),
 				dto.password(),
 				null,
-				new ArrayList<>()
+				new ArrayList<>(),
+				UserRole.USER
 		);
 	}
 

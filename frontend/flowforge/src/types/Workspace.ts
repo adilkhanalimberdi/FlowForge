@@ -1,5 +1,5 @@
 import type {User} from './User';
-import type {Card} from "./Card.ts";
+import type {Card} from "./card/Card.ts";
 
 export interface Workspace {
     id: number,

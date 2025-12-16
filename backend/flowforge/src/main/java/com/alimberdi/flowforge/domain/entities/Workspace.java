@@ -19,12 +19,12 @@ public class Workspace {
 	private Long id;
 
 	@Column
-	private String title = "Untitled";
+	private String title;
 
 	@ManyToOne
 	private User user;
 
-	@OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<Card> cards;
 
 }

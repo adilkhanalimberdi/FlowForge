@@ -1,4 +1,4 @@
-import type {Card} from "../Card.ts";
+import type {Card} from "../card/Card.ts";
 
 export interface Task {
     id: number,

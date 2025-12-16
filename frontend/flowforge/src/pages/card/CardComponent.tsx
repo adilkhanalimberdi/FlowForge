@@ -1,5 +1,5 @@
 import React, {type Dispatch, type SetStateAction, useEffect} from "react";
-import type {Card} from "../../types/Card.ts";
+import type {Card} from "../../types/card/Card.ts";
 import {taskService} from "../../services/taskService.ts";
 import {cardService} from "../../services/cardService.ts";
 
@@ -8,7 +8,9 @@ interface Props {
     after: Card;
     setCanSave: Dispatch<SetStateAction<boolean>>;
     saving: boolean;
+    setSaving: Dispatch<SetStateAction<boolean>>;
     setAfter: Dispatch<SetStateAction<Card>>;
+    setCardClicked: Dispatch<SetStateAction<boolean>>;
 }
 
 
@@ -24,7 +26,8 @@ function formatStatus(status: string) {
 }
 
 
-function CardComponent({before, after, setCanSave, saving, setAfter}: Props) {
+function CardComponent({before, after, setCanSave, saving, setSaving, setAfter, setCardClicked}: Props) {
+
     const handleCardClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const element = event.target as HTMLElement;
         const elementName = element.nodeName;
@@ -33,59 +36,52 @@ function CardComponent({before, after, setCanSave, saving, setAfter}: Props) {
             return;
         }
 
-        console.log(elementName + " clicked!");
+        setCardClicked(true);
     };
 
     const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
         const element = event.target as HTMLInputElement;
         const elementId = Number.parseInt(element.id);
+        // console.log(element.checked);
+
+        if (before.status === "NOT_STARTED") {
+            element.checked = !element.checked;
+            alert("You need to start card first.")
+            return;
+        }
 
         for (let i = 0; i < after.tasks.length; i++) {
             if (after.tasks[i].id === elementId) {
-                console.log("ok");
+                console.log("Task Clicked!");
                 after.tasks[i].completed = element.checked;
+                setAfter(after);
             }
 
-            if (after.tasks[i].subTasks === undefined || after.tasks[i].subTasks === null || after.tasks[i].subTasks.length === 0) return;
-            for (let j = 0; j < after.tasks[i].subTasks.length; i++) {
+            for (let j = 0; j < after.tasks[i].subTasks.length; j++) {
                 if (after.tasks[i].subTasks[j].id === elementId) {
+                    console.log("Subtasks Clicked!");
                     after.tasks[i].subTasks[j].completed = element.checked;
+                    setAfter(after);
                 }
             }
         }
 
-        console.log(before.tasks);
-        console.log(after.tasks)
+        // console.log(before.tasks);
+        // console.log(after.tasks)
 
-        // after.tasks.map((task) => {
-        //     if (task.id === elementId) {
-        //         task.completed = element.checked;
-        //
-        //         task.subTasks.forEach((subTask) => {
-        //             subTask.completed = element.checked;
-        //         });
-        //
-        //         if (element.parentElement === null || element.parentElement.parentElement === null) return;
-        //         const subtaskElements = element.parentElement?.parentElement.children[1].querySelectorAll(`div[class="subtask-body"]`);
-        //
-        //         subtaskElements?.forEach((subtaskElement) => {
-        //             (subtaskElement.querySelector("input") as HTMLInputElement).checked = element.checked;
-        //         });
-        //     }
-        // });
-
-        // after.tasks.map((task) => {
-        //     if (task.id === elementId) {
-        //         if (element.parentElement === null || element.parentElement.parentElement === null) return;
-        //         const subtaskElements = element.parentElement?.parentElement.children[1].querySelectorAll(`div[class="subtask-body"]`);
-        //         subtaskElements?.forEach((subtaskElement) => {
-        //             (subtaskElement.querySelector("input") as HTMLInputElement).checked = element.checked;
-        //         });
-        //         task.subTasks.forEach((subtask) => {
-        //             subtask.completed = element.checked;
-        //         });
-        //     }
-        // });
+        after.tasks.map((task) => {
+            if (task.id === elementId) {
+                if (element.parentElement === null || element.parentElement.parentElement === null) return;
+                const subtaskElements = element.parentElement?.parentElement.children[1].querySelectorAll(`div[class="subtask-body"]`);
+                subtaskElements?.forEach((subtaskElement) => {
+                    (subtaskElement.querySelector("input") as HTMLInputElement).checked = element.checked;
+                });
+                task.subTasks.forEach((subtask) => {
+                    subtask.completed = element.checked;
+                });
+                setAfter(after);
+            }
+        });
 
         const isEqual = JSON.stringify(after) === JSON.stringify(before);
         setAfter(after);
@@ -105,6 +101,22 @@ function CardComponent({before, after, setCanSave, saving, setAfter}: Props) {
 
     const handleCompleteClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
+        setSaving(true);
+
+        let allTasksCompleted = true;
+        after.tasks.map((task) => {
+            allTasksCompleted = task.completed;
+
+            task.subTasks.forEach((subtask) => {
+                allTasksCompleted = subtask.completed;
+            });
+        });
+
+        if (!allTasksCompleted) {
+            alert("All tasks must be completed.");
+            return;
+        }
+
         await cardService.complete(after.id);
         window.location.reload();
     }
@@ -133,52 +145,56 @@ function CardComponent({before, after, setCanSave, saving, setAfter}: Props) {
     }, [saving])
 
     return (
-        <div className="card w-full h-full" onClick={handleCardClick}>
+        <div className="card w-full h-full flex flex-col min-h-[400px] justify-between" onClick={handleCardClick}>
 
-            <div className="card-info p-3 h-[25%]">
-                <div className="flex justify-between items-center">
-                    <h1>{after.title}</h1>
-                    <h1 className={"whitespace-nowrap pl-2 pr-2 rounded-2xl text-sm " + after.status}>{formatStatus(after.status)}</h1>
-                </div>
-                <h1>{after.description}</h1>
-            </div>
-
-            <div className="card-body h-[60%]">
-
-                {after.tasks.map((task) => (
-                    <div className="task p-3" key={task.id}>
-                        <div>
-                            <input id={task.id.toString()}
-                                   type="checkbox"
-                                   className="mr-2"
-                                   defaultChecked={task.completed}
-                                   onChange={handleToggle} />
-                            <label htmlFor={task.id.toString()}
-                                   className={(task.completed ? "line-through" : "")} >
-                                {task.title}</label>
-                        </div>
-
-                        <div className="subtasks-container w-[90%] ml-[10%]">
-
-                            {task.subTasks.map((subTask) => (
-                                <div key={subTask.id}>
-                                    <div className="subtask-body">
-                                        <input id={subTask.id.toString()}
-                                               type="checkbox"
-                                               className="mr-2"
-                                               defaultChecked={subTask.completed}
-                                               onChange={handleToggle} />
-                                        <label htmlFor={subTask.id.toString()}
-                                               className={(subTask.completed ? "line-through" : "")}>
-                                            {subTask.title}</label>
-                                    </div>
-                                </div>
-                            ))}
-
-                        </div>
+            <div>
+                <div className="card-info p-3 h-[25%]">
+                    <div className="flex justify-between items-center">
+                        <h1>{after.title}</h1>
+                        <h1 className={"whitespace-nowrap pl-2 pr-2 rounded-2xl text-sm " + after.status}>{formatStatus(after.status)}</h1>
                     </div>
-                ))}
+                    <h1>{after.description}</h1>
+                </div>
 
+                <div className="card-body min-h-[60%]">
+
+                    {after.tasks.map((task) => (
+                        <div className="task p-3" key={task.id}>
+                            <div>
+                                <input
+                                    id={task.id.toString()}
+                                    type="checkbox"
+                                    className="mr-2"
+                                    defaultChecked={task.completed}
+                                    onChange={handleToggle}
+                                />
+                                <label htmlFor={task.id.toString()}
+                                       className={(task.completed ? "line-through" : "")} >
+                                    {task.title}</label>
+                            </div>
+
+                            <div className="subtasks-container w-[90%] ml-[10%]">
+
+                                {task.subTasks.map((subTask) => (
+                                    <div key={subTask.id}>
+                                        <div className="subtask-body">
+                                            <input id={subTask.id.toString()}
+                                                   type="checkbox"
+                                                   className="mr-2"
+                                                   defaultChecked={subTask.completed}
+                                                   onChange={handleToggle} />
+                                            <label htmlFor={subTask.id.toString()}
+                                                   className={(subTask.completed ? "line-through" : "")}>
+                                                {subTask.title}</label>
+                                        </div>
+                                    </div>
+                                ))}
+
+                            </div>
+                        </div>
+                    ))}
+
+                </div>
             </div>
 
             <div className="action h-[15%] p-3">

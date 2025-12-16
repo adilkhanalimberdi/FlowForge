@@ -11,7 +11,6 @@ import java.util.List;
 @Table(name = "cards")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Getter
 @Setter
 public class Card {
@@ -24,7 +23,7 @@ public class Card {
 	private String title;
 
 	@Column
-	private String description = "Type a description";
+	private String description;
 
 	@Column
 	@Enumerated(EnumType.STRING)
@@ -33,7 +32,7 @@ public class Card {
 	@ManyToOne
 	private Workspace workspace;
 
-	@OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<Task> tasks = new ArrayList<>();
+	@OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Task> tasks;
 
 }

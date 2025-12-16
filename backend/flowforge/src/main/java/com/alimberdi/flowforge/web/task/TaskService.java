@@ -4,14 +4,19 @@ import com.alimberdi.flowforge.domain.entities.Task;
 import com.alimberdi.flowforge.exceptions.EntityNotFoundException;
 import com.alimberdi.flowforge.mappers.TaskMapper;
 import com.alimberdi.flowforge.repositories.TaskRepository;
+import com.alimberdi.flowforge.services.builder.TaskBuilder;
 import com.alimberdi.flowforge.web.task.dtos.TaskDTO;
+import com.alimberdi.flowforge.web.task.dtos.TaskUpdateDTO;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class TaskService {
 
@@ -43,8 +48,18 @@ public class TaskService {
 	}
 
 	public HttpEntity<String> deleteTaskById(Long id) {
-		taskRepository.deleteById(id);
+		Task task = taskRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Task with id: " + id + " not found"));
+
+		deleteRecursively(task);
 		return new HttpEntity<>("Successful");
+	}
+
+	public void deleteRecursively(Task task) {
+		for (Task sub : new ArrayList<>(task.getSubTasks())) {
+			deleteRecursively(sub);
+		}
+		taskRepository.delete(task);
 	}
 
 }

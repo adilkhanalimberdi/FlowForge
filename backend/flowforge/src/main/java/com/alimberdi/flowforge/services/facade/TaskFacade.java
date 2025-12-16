@@ -23,15 +23,16 @@ public class TaskFacade {
 		this.cardService = cardService;
 	}
 
-	public TaskDTO createDefaultTask(Long cardId) {
+	public TaskDTO createDefaultTask(Long cardId, Long parentId) {
 		Card card = cardService.getCardEntityById(cardId);
+		Task parent = (parentId != -1) ? taskService.getTaskEntityById(parentId) : null;
 
 		Task task = TaskBuilder.builder()
 				.title("Do something...")
 				.completed(false) // When we create task, it is not completed yet
 				.lastUpdate(LocalDateTime.now())
 				.card(card)
-				.parent(null) // We create high-level task, so it does not have parent task
+				.parent(parent) // We create high-level task, so it does not have parent task
 				.subTasks(new ArrayList<>()) // When we create task, it does not have subtasks yet
 				.build();
 

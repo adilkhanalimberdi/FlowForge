@@ -1,8 +1,11 @@
 package com.alimberdi.flowforge.services.builder;
 
 import com.alimberdi.flowforge.domain.entities.Card;
+import com.alimberdi.flowforge.domain.entities.Task;
 import com.alimberdi.flowforge.domain.entities.Workspace;
 import com.alimberdi.flowforge.domain.enums.CardStatus;
+
+import java.util.ArrayList;
 
 public class CardBuilder implements Builder<Card> {
 
@@ -36,11 +39,15 @@ public class CardBuilder implements Builder<Card> {
 		return this;
 	}
 
+	public CardBuilder tasks(ArrayList<Task> tasks) {
+		card.setTasks(tasks);
+		return this;
+	}
+
 	@Override
 	public Card build() {
 		Card result = this.card;
 		this.card = null;
 		return result;
 	}
-
 }

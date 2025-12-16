@@ -23,9 +23,11 @@ public class Task {
 	private String title;
 
 	@Column
+	@Builder.Default
 	private Boolean completed = false;
 
 	@Column(name = "last_update")
+	@Builder.Default
 	private LocalDateTime lastUpdate = LocalDateTime.now();
 	
 	@ManyToOne
@@ -35,7 +37,7 @@ public class Task {
 	private Task parent;
 
 	@Column
-	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Task> subTasks;
 
 }
